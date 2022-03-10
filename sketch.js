@@ -39,6 +39,8 @@ THINGS TO TRY:
 - random vs noise (perlin)
 - rectangle over lines, or lines over rectangles?
 - modify number of lines
+- change orientation of rectangle
+- change rectangle alpha channel
 */
 function setup() {
   createCanvas(1210, 1580);
@@ -51,14 +53,14 @@ function draw() {
   const white = color(255);
   const black = color(20);
   const cream = color(255, 252, 240);
-  const orange = color("orange");
-  const red = color("red");
-  const blue = color("blue");
+  const orange = color(127, 64, 0);
+  const red = color(255, 0, 0, 150);
+  const blue = color(0, 0, 255, 150);
 
   // Positions
   // Bottom rect
   const rectXStart = 600;
-  const rectYStart = 1280;
+  const rectYStart = 1330;
   const rectXEnd = 1145;
 
   // Top Rect
@@ -77,7 +79,7 @@ function draw() {
 
   // Shape attributes
   const rectWidth = 3.25;
-  const rectHeight = 250;
+  const rectHeight = 200;
   const rectColor = blue;
   const rect2Color = red;
 
@@ -110,7 +112,7 @@ function draw() {
       735 + random(300, 500),
       675 + random(-600),
       lineXEnd + random(25),
-      lineYEnd + random(25)
+      lineYEnd + random(20)
     );
   }
 
@@ -125,12 +127,12 @@ function draw() {
     bezier(
       line2XStart + random(25),
       line2YStart + random(25),
-      290 + random(200),
-      1500 + random(-250),
-      500 + random(-300),
-      800 + random(200),
-      lineXEnd + random(10, 20),
-      lineYEnd + random(25)
+      900,
+      300 + random(350),
+      -100 + random(0, -300),
+      1300 + random(0, 400),
+      lineXEnd + random(30),
+      lineYEnd + random(20)
     );
   } 
 
