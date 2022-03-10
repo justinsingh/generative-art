@@ -56,10 +56,17 @@ function draw() {
   const blue = color("blue");
 
   // Positions
-  const rectXStart = 500;
-  const rectYStart = 1180;
+  // Bottom rect
+  const rectXStart = 600;
+  const rectYStart = 1280;
   const rectXEnd = 1145;
 
+  // Top Rect
+  const rect2XStart = 50;
+  const rect2YStart  = 50;
+  const rect2XEnd = 610;
+
+  // Lines
   const lineXStart = 1280;
   const lineYStart = 1580;
   const lineXEnd = 600;
@@ -69,12 +76,14 @@ function draw() {
   const line2YStart = 70;
 
   // Shape attributes
-  const rectWidth = 5.25;
+  const rectWidth = 3.25;
   const rectHeight = 250;
-  const rectColor = red;
+  const rectColor = blue;
+  const rect2Color = red;
 
   const lineStrokeWidth = 1.2;
-  const lineColor = black;
+  const line1Color = black;
+  const line2Color = black;
 
   // Generate Art
   // Set Background
@@ -86,7 +95,7 @@ function draw() {
   // Place Bottom Right Lines
   for (let i = 0; i < 50; i++) {
     // Set stroke properties
-    stroke(lineColor);
+    stroke(line1Color);
     strokeWeight(lineStrokeWidth);
     noFill();
 
@@ -108,7 +117,7 @@ function draw() {
   // Place Top Left Lines
   for (let i = 0; i < 50; i++) {
     // Set stroke properties
-    stroke(lineColor);
+    stroke(line2Color);
     strokeWeight(lineStrokeWidth);
     noFill();
 
@@ -125,7 +134,7 @@ function draw() {
     );
   } 
 
-  // Place Strip of rectangles
+  // Place bottom left rectangles
   let xStart = rectXStart;
   while (xStart <= rectXEnd) {
     // Render rectangle
@@ -137,7 +146,17 @@ function draw() {
     xStart += rectWidth * 2;
   }
 
+  // Place top left rectangles
+  xStart = rect2XStart;
+  while (xStart <= rect2XEnd) {
+    // Render rectangle
+    fill(rect2Color);
+    noStroke();
+    rect(xStart, rect2YStart, rectWidth, rectHeight, 20);
 
+    // Increment xStart by desired white space amount
+    xStart += rectWidth * 2;
 
+  }
 
 }
