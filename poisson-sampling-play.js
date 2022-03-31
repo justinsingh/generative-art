@@ -26,9 +26,10 @@ const splitComplementaryColors = [
   [[21, 107, 107], [106, 21, 50], [106, 50, 21]]
 ];
 const triadicColors = [
-  [[176, 217, 140], [140, 176, 217], [217, 141, 176]]
+  [[176, 217, 140], [140, 176, 217], [217, 141, 176]],
+  [[119, 15, 210], [0, 0, 0], [210, 119, 15]],
+  [[0, 255, 208], [255, 208, 0], [208, 0, 255]]
 ];
-
 
 // minimum distance between points
 const r = 10;
@@ -70,8 +71,8 @@ function draw() {
   noLoop();
 
   // SELECT COLOR SCHEME
-  colorScheme = triadicColors[random(0, splitComplementaryColors.length - 1)];
-
+  //colorScheme = triadicColors[2];
+  colorScheme = triadicColors[floor(random(0, triadicColors.length))];
   backgroundDiscColor = colorScheme[0];
   backgroundDiscOpacity = 255;
 
@@ -187,7 +188,7 @@ function draw() {
   // Draw Rays Circles
   for (let i = 0; i < 250; i++) {
     let colorArr = colorScheme[0]; //circleColors[i % 2 ? 0 : 1];
-    let opacity = 200;
+    let opacity = 100;
     let strokeSize = 8;
     let noiseMax = 5.55;
     let radiusLowerBound = random(25, 150);
