@@ -22,6 +22,9 @@ TO-DO / EXPERIMENT WITH: fs
 - Make beams fade or scratchy 
 - Try different background colors (earth tones / night colors)
 - Test changing poisson disk samples into noisy circles or lines
+- use pre-defined RGB opacity within color scheme array for ray beams. use 255 in other cases
+- more color schemes
+  - monochrome
 */
 
 // COLORS
@@ -37,9 +40,10 @@ const splitComplementaryColors = [
   [[21, 107, 107], [106, 21, 50], [106, 50, 21]]
 ];
 const triadicColors = [
-  [[176, 217, 140], [140, 176, 217], [217, 141, 176]],
-  [[119, 15, 210], [0, 0, 0], [210, 119, 15]],
-  [[0, 255, 208], [255, 208, 0], [208, 0, 255]]
+  [[176, 217, 140, 255], [140, 176, 217, 255], [217, 141, 176, 255]],
+  [[119, 15, 210, 50], [0, 0, 0, 30], [210, 119, 15, 125]],
+  [[0, 255, 208, 255], [255, 208, 0, 255], [208, 0, 255, 15]],
+  [[167, 30, 30], [30, 169, 30], [30, 30, 169]]
 ];
 
 // POISSON DISK SAMPLING VARIABLES
@@ -69,6 +73,7 @@ var largeCenterCricleUpperRadiusBound = [101, 200];
 var centerCircleLowerRadiusBound;
 var centerCircleUpperRadiusBound;
 var isCenterCircleSmall;
+var rayColor;
 
 function setup() {
   createCanvas(1210, 1580);
@@ -76,10 +81,12 @@ function setup() {
   // ASSIGN RANDOMIZED VARIABLES
   // Color Scheme
   background(cream);
-  colorScheme = triadicColors[floor(random(0, triadicColors.length))];
+  colorScheme = triadicColors[3]; //triadicColors[floor(random(0, triadicColors.length))]; // Pick random color scheme
+  shuffleArray(colorScheme); // Shuffle elements of color scheme, so that the 3 colors are used in randomized parts of composition between editions
   backgroundDiscColor = colorScheme[0];
   backgroundDiscOpacity = 255;
   circleColors = [colorScheme[1], colorScheme[2]];
+  rayColor = colorScheme[0];
 
   // Center Circle Size
   var randNum = floor(random(0, 2));
@@ -108,7 +115,7 @@ function setup() {
 
 function draw() {
   noLoop();
-  
+
   // POISSON DISK SAMPLING
   while (active.length > 0) {
     let randIndex = floor(random(active.length)); // get random index
@@ -172,7 +179,7 @@ function draw() {
   // Draw Poisson Disk Samples
   for (let i = 0; i < grid.length; i++) {
     if (grid[i]) {
-      stroke(...backgroundDiscColor, backgroundDiscOpacity);
+      stroke(backgroundDiscColor[0], backgroundDiscColor[1], backgroundDiscColor[2], backgroundDiscOpacity);
       strokeWeight(3);
       point(grid[i].x, grid[i].y);
     }
@@ -218,7 +225,7 @@ function draw() {
 
   // Draw Rays Circles
   for (let i = 0; i < 250; i++) {
-    let colorArr = colorScheme[0]; //circleColors[i % 2 ? 0 : 1];
+    let colorArr = rayColor;
     let opacity = 100;
     let strokeSize = 8;
     let noiseMax = 5.55;
@@ -243,7 +250,7 @@ function draw() {
     for (let vec of circlePositions) {
       if (increment % 15 == 0) {
         strokeWeight(strokeSize);
-        stroke(colorArr[0], colorArr[1], colorArr[2], opacity);
+        stroke(colorArr);
         point(vec.x, vec.y);
       }
 
@@ -291,8 +298,6 @@ function draw() {
     // Clear circlePositions
     circlePositions.length = 0;
   }
-
-  //save("output_canvas.png");
 }
 
 function drawNoisyCircle(
@@ -325,4 +330,12 @@ function drawNoisyCircle(
 
   endShape(CLOSE);
   noLoop();
+}
+
+function shuffleArray(array) {
+  return array.sort( () => Math.random() - 0.5);
+}
+
+function doubleClicked() {
+  save("output_canvas.png");
 }
