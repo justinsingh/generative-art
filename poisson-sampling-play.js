@@ -1,7 +1,15 @@
 // POISSON DISK SAMPLING PORTION CREATED USING DANIEL SHIFFMAN VIDEO: https://youtu.be/flQgnCUxHlw
 
 /*
-TO-DO / EXPERIMENT WITH:
+RANDOM VARIABLES
+1) Color
+  - Including background?
+  - For one 
+2) Size of center circles: small or large?
+3) Positioning of center circles
+4) Positioning of beams
+
+TO-DO / EXPERIMENT WITH: fs
 - reduce overlapping
 - randomize colors per circle
 - create small offsets to each dot position so it's not a neat circle
@@ -11,6 +19,9 @@ TO-DO / EXPERIMENT WITH:
 - Make circles draw more concentrated in the center and fade out
 - Randomize opacity of each circle
 - Stop first layer circles from drawing in the center
+- Make beams fade or scratchy 
+- Try different background colors (earth tones / night colors)
+- Test changing poisson disk samples into noisy circles or lines
 */
 
 // COLORS
@@ -31,6 +42,7 @@ const triadicColors = [
   [[0, 255, 208], [255, 208, 0], [208, 0, 255]]
 ];
 
+// POISSON DISK SAMPLING VARIABLES
 // minimum distance between points
 const r = 10;
 // num of times before we 'quit' trying
@@ -43,9 +55,39 @@ var active = [];
 var cols, rows;
 const circlePositions = [];
 
+// RANDOMIZED VARIABLES
+// Color Scheme
+var colorScheme;
+var backgroundDiscColor;
+var backgroundDiscOpacity;
+
+// Center Circle Size
+var smallCenterCircleLowerRadiusBound = [25, 51];
+var smallCenterCircleUpperRadiusBound = [51, 100];
+var largeCenterCricleLowerRadiusBound = [25, 100];
+var largeCenterCricleUpperRadiusBound = [101, 200];
+var centerCircleLowerRadiusBound;
+var centerCircleUpperRadiusBound;
+var isCenterCircleSmall;
+
 function setup() {
   createCanvas(1210, 1580);
 
+  // ASSIGN RANDOMIZED VARIABLES
+  // Color Scheme
+  background(cream);
+  colorScheme = triadicColors[floor(random(0, triadicColors.length))];
+  backgroundDiscColor = colorScheme[0];
+  backgroundDiscOpacity = 255;
+  circleColors = [colorScheme[1], colorScheme[2]];
+
+  // Center Circle Size
+  var randNum = floor(random(0, 2));
+  isCenterCircleSmall = randNum == 0 ? false : true;
+  centerCircleLowerRadiusBound = isCenterCircleSmall ? smallCenterCircleLowerRadiusBound : largeCenterCricleLowerRadiusBound;
+  centerCircleUpperRadiusBound = isCenterCircleSmall ? smallCenterCircleUpperRadiusBound : largeCenterCricleUpperRadiusBound;
+
+  // Poisson Disc Sampling Setup
   // STEP 0
   cols = floor(width / w);
   rows = floor(height / w);
@@ -65,19 +107,8 @@ function setup() {
 }
 
 function draw() {
-  // CANVAS MODIFICATIONS
-  background(cream);
-  //background(70);
   noLoop();
-
-  // SELECT COLOR SCHEME
-  //colorScheme = triadicColors[2];
-  colorScheme = triadicColors[floor(random(0, triadicColors.length))];
-  backgroundDiscColor = colorScheme[0];
-  backgroundDiscOpacity = 255;
-
-  circleColors = [colorScheme[1], colorScheme[2]];
-
+  
   // POISSON DISK SAMPLING
   while (active.length > 0) {
     let randIndex = floor(random(active.length)); // get random index
@@ -228,9 +259,9 @@ function draw() {
     let colorArr = circleColors[i % 2 ? 0 : 1];
     let opacity = random(55, 255);
     let strokeSize = 5;
-    let noiseMax = 5.55;
-    let radiusLowerBound = random(25, 100);
-    let radiusUpperBound = random(101, 200);
+    let noiseMax = random(1.55, 10.55);
+    let radiusLowerBound = random(...centerCircleLowerRadiusBound);
+    let radiusUpperBound = random(...centerCircleUpperRadiusBound);
     let xTranslation = random(width / 2 - 400, width / 2 + 400); //random(radiusUpperBound, width - radiusUpperBound);
     let yTranslation = random(height / 2 - 400, height / 2 + 400); //random(radiusUpperBound, height - radiusUpperBound);
 
@@ -248,7 +279,7 @@ function draw() {
     // Repaint certain circlePositions coordinates with points
     let increment = 0;
     for (let vec of circlePositions) {
-      if (increment % 5 == 0) {
+      if (increment % (isCenterCircleSmall ? 9 : 5) == 0) {
         strokeWeight(strokeSize);
         stroke(colorArr[0], colorArr[1], colorArr[2], opacity);
         point(vec.x, vec.y);
