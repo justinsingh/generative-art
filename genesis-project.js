@@ -8,6 +8,7 @@ RANDOM VARIABLES
 2) Size of center circles: small or large?
 3) Positioning of center circles
 4) Positioning of beams
+5) Number of beams
 
 TO-DO / EXPERIMENT WITH: fs
 - reduce overlapping
@@ -43,7 +44,7 @@ const triadicColors = [
   [[176, 217, 140, 255], [140, 176, 217, 255], [217, 141, 176, 255]],
   [[119, 15, 210, 50], [0, 0, 0, 30], [210, 119, 15, 125]],
   [[0, 255, 208, 255], [255, 208, 0, 255], [208, 0, 255, 15]],
-  [[167, 30, 30], [30, 169, 30], [30, 30, 169]]
+  [[255, 192, 192], [194, 255, 194], [194, 194, 255, 100]] // Pastel pink, green, blueish purple
 ];
 
 // POISSON DISK SAMPLING VARIABLES
@@ -65,7 +66,7 @@ var colorScheme;
 var backgroundDiscColor;
 var backgroundDiscOpacity;
 
-// Center Circle Size
+// Center Circles
 var smallCenterCircleLowerRadiusBound = [25, 51];
 var smallCenterCircleUpperRadiusBound = [51, 100];
 var largeCenterCricleLowerRadiusBound = [25, 100];
@@ -73,7 +74,11 @@ var largeCenterCricleUpperRadiusBound = [101, 200];
 var centerCircleLowerRadiusBound;
 var centerCircleUpperRadiusBound;
 var isCenterCircleSmall;
+
+// Beams / Rays
 var rayColor;
+var raySpacingOptions = [10, 15, 25, 45, 55, 75];
+var raySpacing;
 
 function setup() {
   createCanvas(1210, 1580);
@@ -81,18 +86,22 @@ function setup() {
   // ASSIGN RANDOMIZED VARIABLES
   // Color Scheme
   background(cream);
-  colorScheme = triadicColors[3]; //triadicColors[floor(random(0, triadicColors.length))]; // Pick random color scheme
+  colorScheme = triadicColors[floor(random(0, triadicColors.length))]; // Pick random color scheme
   shuffleArray(colorScheme); // Shuffle elements of color scheme, so that the 3 colors are used in randomized parts of composition between editions
   backgroundDiscColor = colorScheme[0];
   backgroundDiscOpacity = 255;
   circleColors = [colorScheme[1], colorScheme[2]];
   rayColor = colorScheme[0];
 
-  // Center Circle Size
+  // Center Circles
   var randNum = floor(random(0, 2));
   isCenterCircleSmall = randNum == 0 ? false : true;
   centerCircleLowerRadiusBound = isCenterCircleSmall ? smallCenterCircleLowerRadiusBound : largeCenterCricleLowerRadiusBound;
   centerCircleUpperRadiusBound = isCenterCircleSmall ? smallCenterCircleUpperRadiusBound : largeCenterCricleUpperRadiusBound;
+
+  // Rays / Beams
+  raySpacingIndex = floor(random(0, raySpacingOptions.length));
+  raySpacing = raySpacingOptions[raySpacingIndex];
 
   // Poisson Disc Sampling Setup
   // STEP 0
@@ -248,7 +257,7 @@ function draw() {
     // Repaint certain circlePositions coordinates with points
     let increment = 0;
     for (let vec of circlePositions) {
-      if (increment % 15 == 0) {
+      if (increment % raySpacing == 0) {
         strokeWeight(strokeSize);
         stroke(colorArr);
         point(vec.x, vec.y);
