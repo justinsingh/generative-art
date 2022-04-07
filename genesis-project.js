@@ -10,6 +10,7 @@ RANDOM VARIABLES
 4) Positioning of beams
 5) Number of beams
 6) Number of beam circles (less beam circles, more empty spaces)
+7) Beams - ON / OFF
 
 TO-DO / EXPERIMENT WITH: fs
 - reduce overlapping
@@ -27,6 +28,7 @@ TO-DO / EXPERIMENT WITH: fs
 - use pre-defined RGB opacity within color scheme array for ray beams. use 255 in other cases
 - more color schemes
   - monochrome
+- test how often each color scheme gets picked to ensure random seed isn't biased
 */
 
 // COLORS
@@ -37,15 +39,19 @@ const cream = [255, 252, 240];
 const orange = [127, 64, 0];
 const red = [255, 0, 0];
 const blue = [0, 0, 255, 150];
+const linen = "#FFF2E6"
+const blackShadows = "#C5B9B9"
+const timberwolf = "#E6DCDC"
 
 const splitComplementaryColors = [
   [[21, 107, 107, 255], [106, 21, 50, 255], [106, 50, 21, 255]]
 ];
 const triadicColors = [
-  [[176, 217, 140, 255], [140, 176, 217, 255], [217, 141, 176, 255]], // Chill Green, blue, pink
-  [[119, 15, 210, 100], [0, 0, 0, 65], [210, 119, 15, 125]], // Halloween Purple, black, orange. (PURPLE AS BEAM COLOR / SAMPLE COLOR IS NOT GOOD)
-  [[0, 255, 208, 255], [255, 208, 0, 255], [208, 0, 255, 155]], // Vibrant turqoise, yellow, purple
-  [[255, 192, 192, 255], [194, 255, 194, 255], [194, 194, 255, 100, 255]] // Pastel pink, green, blueish purple
+  [[176, 217, 140, 255], [140, 176, 217, 125], [217, 141, 176, 100]], // Chill Green, blue, pink
+  [[0, 255, 208, 255], [255, 208, 0, 255], [208, 0, 255, 50]], // Vibrant turqoise, yellow, purple (PURPLE AS BEAM COLOR / SAMPLE COLOR MAY NEED WORK)
+  [[119, 15, 210, 100], [0, 0, 0, 65], [210, 119, 15, 125]], // Halloween Purple, black, orange. 
+  [[255, 192, 192, 155], [194, 255, 194, 255], [194, 194, 255, 100, 255]], // Pastel pink, green, blueish purple
+  [[176, 255, 252, 255], [252, 179, 255, 65], [255, 252, 179, 255]] // Pastel teal, hot pink, yellow
 ];
 
 // POISSON DISK SAMPLING VARIABLES
@@ -63,6 +69,8 @@ const circlePositions = [];
 
 // RANDOMIZED VARIABLES
 // Color Scheme
+var backgroundColorOptions = [cream, linen];
+var backgroundColor;
 var colorScheme;
 var backgroundDiscColor;
 var backgroundDiscOpacity;
@@ -84,12 +92,13 @@ var numRayCircles;
 
 function setup() {
   createCanvas(1210, 1580);
-  randomSeed(random(0, 1000));
+  randomSeed(random(0, 10000));
 
   // ASSIGN RANDOMIZED VARIABLES
   // Color Scheme
-  background(cream);
-  colorScheme = triadicColors[1]; //triadicColors[floor(random(0, triadicColors.length))]; // Pick random color scheme
+  backgroundColor = backgroundColorOptions[floor(random(0, backgroundColorOptions.length))];
+  background(backgroundColor);
+  colorScheme = triadicColors[floor(random(0, triadicColors.length))]; // Pick random color scheme
   shuffleArray(colorScheme); // Shuffle elements of color scheme, so that the 3 colors are used in randomized parts of composition between editions
   backgroundDiscColor = colorScheme[0];
   backgroundDiscOpacity = 255;
@@ -244,8 +253,8 @@ function draw() {
     let noiseMax = 5.55;
     let radiusLowerBound = random(25, 150);
     let radiusUpperBound = random(601, 900);
-    let xTranslation = width / 2; //random(radiusUpperBound, width - radiusUpperBound);
-    let yTranslation = height / 2;// random(radiusUpperBound, height - radiusUpperBound);
+    let xTranslation = width / 2; 
+    let yTranslation = height / 2;
 
     drawNoisyCircle(
       colorArr,
