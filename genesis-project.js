@@ -9,6 +9,7 @@ RANDOM VARIABLES
 3) Positioning of center circles
 4) Positioning of beams
 5) Number of beams
+6) Number of beam circles (less beam circles, more empty spaces)
 
 TO-DO / EXPERIMENT WITH: fs
 - reduce overlapping
@@ -38,13 +39,13 @@ const red = [255, 0, 0];
 const blue = [0, 0, 255, 150];
 
 const splitComplementaryColors = [
-  [[21, 107, 107], [106, 21, 50], [106, 50, 21]]
+  [[21, 107, 107, 255], [106, 21, 50, 255], [106, 50, 21, 255]]
 ];
 const triadicColors = [
-  [[176, 217, 140, 255], [140, 176, 217, 255], [217, 141, 176, 255]],
-  [[119, 15, 210, 50], [0, 0, 0, 30], [210, 119, 15, 125]],
-  [[0, 255, 208, 255], [255, 208, 0, 255], [208, 0, 255, 15]],
-  [[255, 192, 192], [194, 255, 194], [194, 194, 255, 100]] // Pastel pink, green, blueish purple
+  [[176, 217, 140, 255], [140, 176, 217, 255], [217, 141, 176, 255]], // Chill Green, blue, pink
+  [[119, 15, 210, 100], [0, 0, 0, 65], [210, 119, 15, 125]], // Halloween Purple, black, orange. (PURPLE AS BEAM COLOR / SAMPLE COLOR IS NOT GOOD)
+  [[0, 255, 208, 255], [255, 208, 0, 255], [208, 0, 255, 155]], // Vibrant turqoise, yellow, purple
+  [[255, 192, 192, 255], [194, 255, 194, 255], [194, 194, 255, 100, 255]] // Pastel pink, green, blueish purple
 ];
 
 // POISSON DISK SAMPLING VARIABLES
@@ -79,14 +80,16 @@ var isCenterCircleSmall;
 var rayColor;
 var raySpacingOptions = [10, 15, 25, 45, 55, 75];
 var raySpacing;
+var numRayCircles;
 
 function setup() {
   createCanvas(1210, 1580);
+  randomSeed(random(0, 1000));
 
   // ASSIGN RANDOMIZED VARIABLES
   // Color Scheme
   background(cream);
-  colorScheme = triadicColors[floor(random(0, triadicColors.length))]; // Pick random color scheme
+  colorScheme = triadicColors[1]; //triadicColors[floor(random(0, triadicColors.length))]; // Pick random color scheme
   shuffleArray(colorScheme); // Shuffle elements of color scheme, so that the 3 colors are used in randomized parts of composition between editions
   backgroundDiscColor = colorScheme[0];
   backgroundDiscOpacity = 255;
@@ -101,7 +104,8 @@ function setup() {
 
   // Rays / Beams
   raySpacingIndex = floor(random(0, raySpacingOptions.length));
-  raySpacing = raySpacingOptions[raySpacingIndex];
+  raySpacing = floor(random(10, 76)); //raySpacingOptions[raySpacingIndex];
+  numRayCircles = floor(random(80, 250));
 
   // Poisson Disc Sampling Setup
   // STEP 0
@@ -233,9 +237,9 @@ function draw() {
   }
 
   // Draw Rays Circles
-  for (let i = 0; i < 250; i++) {
+  for (let i = 0; i < numRayCircles; i++) {
     let colorArr = rayColor;
-    let opacity = 100;
+    let opacity = colorArr[3] - (i / 4);
     let strokeSize = 8;
     let noiseMax = 5.55;
     let radiusLowerBound = random(25, 150);
@@ -254,12 +258,12 @@ function draw() {
       yTranslation
     );
 
-    // Repaint certain circlePositions coordinates with points
+    // Repaint certain circlePositions coordinates with points (ray / beam effect)
     let increment = 0;
     for (let vec of circlePositions) {
       if (increment % raySpacing == 0) {
         strokeWeight(strokeSize);
-        stroke(colorArr);
+        stroke(colorArr[0], colorArr[1], colorArr[2], opacity);
         point(vec.x, vec.y);
       }
 
@@ -269,6 +273,8 @@ function draw() {
     // Clear circlePositions
     circlePositions.length = 0;
   }
+
+
 
   // Draw Center Circles
   for (let i = 0; i < 150; i++) {
