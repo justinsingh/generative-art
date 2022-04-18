@@ -29,19 +29,22 @@ TO-DO / EXPERIMENT WITH: fs
 - more color schemes
   - monochrome
 - test how often each color scheme gets picked to ensure random seed isn't biased
+- Multiple noisy circle 'types' 
+  - #53 of sighack ways to draw a circle 
+- Alternative to rays: converging lines like in sketch.js
 */
 
 // COLORS
 const teal = [180, 238, 243];
-const white = [0, 0, 0];
-const black = [255, 255, 255];
+const black = [0, 0, 0];
+const white = [255, 255, 255];
 const cream = [255, 252, 240];
 const orange = [127, 64, 0];
 const red = [255, 0, 0];
 const blue = [0, 0, 255, 150];
-const linen = "#FFF2E6"
-const blackShadows = "#C5B9B9"
-const timberwolf = "#E6DCDC"
+const linen = "#FFF2E6";
+const blackShadows = "#C5B9B9";
+const timberwolf = "#E6DCDC";
 
 const splitComplementaryColors = [
   [[21, 107, 107, 255], [106, 21, 50, 255], [106, 50, 21, 255]]
