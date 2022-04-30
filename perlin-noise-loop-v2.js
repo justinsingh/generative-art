@@ -24,31 +24,6 @@ function setup() {
 function draw() {
   noLoop();
 
-  // GENERATE MANY
-  for (let i = 0; i < 2; i++) {
-    // Generate vertices of noise loop
-    xCenter = random(200, 800);
-    yCenter = random(200, 800);
-    noiseLoopVertices = populateNoiseLoopVertices(
-      xCenter,
-      yCenter,
-      100,
-      200,
-      3.55
-    );
-
-    // Draw line from center of noise loop to each vector of noise loop's edge
-    for (let vec of noiseLoopVertices) {
-      line3(xCenter, yCenter, vec.x, vec.y, 1, lineColor);
-    }
-
-    // Clear vertices array
-    noiseLoopVertices = [];
-
-    // Draw noise loop with line3 styling
-    //line3DrawShape(noiseLoopVertices, 4, lineColor);
-  }
-  /* GENERATE SINGLE 
   // Generate vertices of noise loop
   xCenter = 500;
   yCenter = 500;
@@ -56,7 +31,7 @@ function draw() {
     xCenter,
     yCenter,
     100,
-    600,
+    200,
     1.55
   );
 
@@ -66,8 +41,7 @@ function draw() {
   }
 
   // Draw noise loop with line3 styling
-  //line3DrawShape(noiseLoopVertices, 4, lineColor);
-  */
+  line3DrawShape(noiseLoopVertices, 2, lineColor);
 }
 
 function line3(x1, y1, x2, y2, weight, color) {
@@ -161,5 +135,5 @@ function populateNoiseLoopVertices(
 }
 
 function doubleClicked() {
-  save("LineStudy1.png");
+  save("PerlinNoiseLoopsV2.png");
 }
