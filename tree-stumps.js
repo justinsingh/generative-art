@@ -6,6 +6,10 @@ EXPERIMENT WITH:
     - green, tan, 
 - tree colors
   - different browns
+- distribution of the stumps
+  - they may overlap because the poisson algo may only check for neighbors 
+    within the current grid
+  - prevent from going out of the canvas bounds
 */
 // CANVAS
 
@@ -17,30 +21,51 @@ const colors = {
   green: [0, 255, 0, 255],
   blue: [0, 0, 255, 255],
   cream: [255, 252, 240, 255],
-  treeStumps: [
-    [142, 62, 24, 255], // russet
-    [192, 114, 78, 255], // liver chestnut
-    //['brown']
+  schemes: [
+    // Standard Brown Tree Stumps
+    {
+      stump: [
+        [142, 62, 24, 255], // russet
+        [192, 114, 78, 255], // liver chestnut
+      ],
+      texture: [
+        [67, 84, 20, 150], // mossy green
+        [84, 68, 20, 100], // ugly browny yellow
+        [84, 46, 20, 100], // browny red
+      ],
+    },
+    {
+      stump: [
+        [213, 66, 181, 255], // Fuchsia Crayola
+        [67, 182, 214, 255], // 43B6D6 (complementary blue)
+      ],
+      texture: [
+        //[67, 214, 99, 125], // 43D663
+        [214, 172, 67, 125], // D6AC43
+        [67, 108, 214, 125], // 436CD6     
+        //[145, 66, 214, 125], // 9142D6
+        //[69, 66, 214, 125], // 4542D6
+      ]
+    }
   ],
-  textures: {
-    mossy: [
-      [67, 84, 20, 150], // mossy green
-      [84, 68, 20, 100], // ugly browny yellow
-      [84, 46, 20, 100], // browny red
-    ],
-  },
 };
 var lineColor;
 
+// RANDOMIZATION VARIABLES
+var stumpColorScheme;
+var textureColorScheme;
+
 // TREE STUMP PROPERTIES
-var minStumpSize = 75;
+var minStumpSize = 50;
 var maxStumpSize = 200;
+var minStumpNoise = 1.35;
+var maxStumpNoise = 4.00;
 
 // TREE STUMP POISSON DISK SAMPLING VARIABLES
 // minimum distance between points
-const r = maxStumpSize * 1.9;
+const r = maxStumpSize * 2.0;
 // num of times before we 'quit' trying
-const k = 9999;
+const k = 999;
 
 // grid for storing samples (points). entry of -1 indicates no sample.
 var w = r / Math.sqrt(4); // size of cell
@@ -63,7 +88,12 @@ var cols2, rows2;
 function setup() {
   createCanvas(1000, 1000);
   background(colors.cream);
-  //lineColor = "brown";
+
+  // INITIALIZE RANDOMIZED VARIABLES
+  // Pick a random color scheme (Object with two properties)
+  let randColorScheme = colors.schemes[1]//colors.schemes[floor(random(0, colors.schemes.length))];
+  stumpColorScheme = randColorScheme.stump;
+  textureColorScheme = randColorScheme.texture;
 
   // TREE STUMP POISSON DISK SAMPLING SETUP
   cols = floor(width / w);
@@ -171,8 +201,8 @@ function drawTexture() {
   for (let i = 0; i < grid2.length; i++) {
     if (grid2[i]) {
       strokeWeight(3);
-      let randColorIndex = floor(random(0, colors.textures.mossy.length));
-      stroke(colors.textures.mossy[randColorIndex]);
+      let randIndex = floor(random(0, textureColorScheme.length));
+      stroke(textureColorScheme[randIndex]);
       point(grid2[i].x, grid2[i].y);
     }
   }
@@ -257,23 +287,24 @@ function drawStump(x, y) {
     y,
     minStumpSize,
     maxStumpSize,
-    1.55
+    random(minStumpNoise, maxStumpNoise),
   );
 
   // Assign random stump color
-  let stumpColor =
-    colors.treeStumps[floor(random(0, colors.treeStumps.length))];
-
+  let randIndex = floor(random(0, stumpColorScheme.length));
+  let stumpColor = stumpColorScheme[randIndex];
+    
   // Fill stump shape with cream color
   fillShape(noiseLoopVertices, colors.cream);
 
   // Draw line from center of noise loop to each vector of noise loop's edge
+  let lerpInterval = random(0.019, 0.031);
   for (let vec of noiseLoopVertices) {
-    line3V2(x, y, vec.x, vec.y, 1, stumpColor);
+    line3V2(x, y, vec.x, vec.y, 1, stumpColor, lerpInterval);
   }
 
   // Draw noise loop with line3 styling
-  //line3DrawShape(noiseLoopVertices, 2, lineColor);
+  //line3DrawShape(noiseLoopVertices, 2, stumpColor);
 }
 
 function line3(x1, y1, x2, y2, weight, color) {
@@ -298,17 +329,17 @@ function line3(x1, y1, x2, y2, weight, color) {
   }
 }
 
-function line3V2(x1, y1, x2, y2, weight, color) {
+function line3V2(x1, y1, x2, y2, weight, color, lerpInterval) {
   strokeWeight(weight);
   stroke(color);
 
-  for (let lerpVal = 0.0; lerpVal <= 1; lerpVal += 0.019 / (weight / 2)) {
+  for (let lerpVal = 0.0; lerpVal <= 1; lerpVal += lerpInterval / (weight / 2)) {
     // Displace coords
     let randTheta = random(TWO_PI);
-    //x1 += random(weight / 2) * cos(randTheta);
-    //x2 += random(weight / 2) * cos(randTheta);
-    //y1 += random(weight / 2) * sin(randTheta);
-    //y2 += random(weight / 2) * sin(randTheta);
+    x1 += random(weight / 9) * cos(randTheta);
+    x2 += random(weight / 9) * cos(randTheta);
+    y1 += random(weight / 9) * sin(randTheta);
+    y2 += random(weight / 9) * sin(randTheta);
 
     // Assign lerped x and y positions using the progressively increasing lerpVal
     lerpX = lerp(x1, x2, lerpVal);
@@ -333,7 +364,7 @@ function line3DrawShape(shapeVertices, weight, color) {
     // Draw circle
     strokeWeight(random(0, weight));
     // Play around with randomizing opacity, and which to apply to (stroke || fill)
-    let randOpacity = random(0, 255);
+    let randOpacity = random(155, 255);
     stroke(color[0], color[1], color[2], randOpacity);
     fill(color[0], color[1], color[2], randOpacity);
 
