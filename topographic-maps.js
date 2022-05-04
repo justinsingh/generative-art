@@ -1,4 +1,7 @@
 /*
+STYLE IDEAS:
+  - people initially liked line3, so stick with that aesthetic 
+
 MAP FEATURES:
 Ocean
 River
@@ -14,6 +17,20 @@ Island
   - Smaller than land mass, surrounded by ocean
   - Can contain single peak, double peak, perhaps N-peak mountain 
 
+ALGORITHM IDEAS:
+Create a mountain (x, y, steepLevel(?))
+  randCounter
+  randMinSize, randMaxSize
+  randNoise
+  while randCounter > 0
+    assign vertices of perlin noise loop at randx, randY with randMinSize, randMaxSize, randNoise
+    if vertices collide with any land boundaries
+      break
+    draw line through vertices
+    reassign randMinSize to larger randMaxSize
+    reassign randMaxSize to larger randMinSize 
+
+  return vertex array of mountain's largest edge (?) to use in further collision detection
 */
 
 // COLORS
@@ -76,24 +93,49 @@ function drawIsland(x, y) {
   );
 
   // Draw outer line of island with standard style
-  standardLineDrawShape(islandVertices, 2, colors.green); 
+  standardLineDrawShape(islandVertices, 2, colors.black); 
   
-  // Assign vertex positions of mountain
-  let mountainVertices = populateNoiseLoopVertices(
-    x,
-    y,
-    islandMinDist / 2,
-    islandMaxDist / 2,
-    islandNoise
-  );
+  // Draw mountain
+  drawMountain(x-100, y+50);
+}
 
-  // Draw outer line of mountain with standard style
-  standardLineDrawShape(mountainVertices, 0.5, colors.green);
+function drawMountain(x, y) {
+  let randCounter = 4 //floor(random(1, 5));
+  let randMinSize = islandMinDist / 30;
+  let randMaxSize = islandMaxDist / 25; 
+  let randNoise = random(6, 7);
+  let contourLineVertices = [];
 
-  // Draw line from center of island to each vector of island's edge
-  for (let vec of mountainVertices) {
-    line3Test(x, y, vec.x, vec.y, 0.5, colors.green);
+  // Create random amount of increasingly larger contour lines (peak -> outwards)
+  while (randCounter > 0) {
+    // Assign vertices of contour line
+    contourLineVertices = populateNoiseLoopVertices(
+      x,
+      y,
+      randMinSize,
+      randMaxSize,
+      randNoise
+    );
+    
+    // TODO: Check if contourLineVertices collide with any land features
+    
+    // Draw contour line
+    standardLineDrawShape(contourLineVertices, 2, colors.black);
+
+    // Increase contour line limits
+    //randMinSize = randMaxSize + random(5, 15);
+    //randMaxSize = randMinSize + random(5, 20);
+    randMinSize = randMaxSize * random(1.1, 1.3);
+    randMaxSize = randMinSize * random(1.1, 1.8);
+
+    // Increase randomized noise at random interval
+    randNoise = random(6, 7);
+    // Decrement randCounter
+    randCounter--;
   }
+
+  // Return vertex positions of mountain's outermost contour line
+  return contourLineVertices;
 }
 
 function standardLineDrawShape(shapeVertices, weight, lineColor, fillColor=null) {
